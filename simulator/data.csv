@@ -1,0 +1,2 @@
+type,nanHandling,instrumentType,delay,universe,truncation,unitHandling,testPeriod,pasteurization,region,language,decay,neutralization,visualization,regular
+REGULAR,OFF,EQUITY,1,TOP3000,0.01,VERIFY,P0D,ON,USA,FASTEXPR,0,SUBINDUSTRY,FALSE,"ts_delta(close, 1)"
