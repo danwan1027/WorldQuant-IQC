@@ -67,12 +67,12 @@ class Simulator:
         }
 
         payload = self.queue.get_nowait()  # 嘗試從隊列中取出項目
-        print(payload['regular'])
+        # print(payload['regular'])
         payload = self.convert_numpy_to_python(payload)
 
         response = requests.post(url, headers=headers, json=payload)
         # 顯示結果
-        print("已送出 Simulation. Status Code:", response.status_code)
+        print(f"已送出新 Simulation. {payload['regular']}    Status Code:", response.status_code)
         try:
             print("Response JSON:", response.json())
         except Exception:
@@ -94,17 +94,21 @@ class Simulator:
                 break
 
             data = response.json()
-            print("Data", data)
+            if data.get("status") == "ERROR":
+                print("模擬狀態：ERROR;  錯誤 Alpha: ", payload['regular'])
+                
+                break
+            if data.get("status") == None:
+                print("Data", data, end = "  ")
             print("目前模擬狀態：", data.get("status"))
 
-            if data.get("status") == "COMPLETE":
+            if data.get("status") in ("COMPLETE", "WARNING"):
                 print("模擬完成 ✅")
                 # 顯示完整結果（可自定）
-                print(data)
 
                 # 取得 alpha ID
                 alpha_id = data.get("alpha")
-                print(f"alpha ID: {alpha_id}")
+                # print(f"alpha ID: {alpha_id}")
 
                 # 使用 alpha ID 查詢結果
                 alpha_url = f"https://api.worldquantbrain.com/alphas/{alpha_id}"
@@ -112,7 +116,6 @@ class Simulator:
 
                 if alpha_response.status_code == 200:
                     alpha_data = alpha_response.json()
-                    print("策略詳細結果：", alpha_data)
                 else:
                     print(f"查詢策略結果失敗，狀態碼：{alpha_response.status_code}")
                 break
@@ -162,4 +165,4 @@ class Simulator:
             new_df = pd.concat([df, new_row], ignore_index=True)
             new_df.to_csv("results.csv", index=False)
 
-        print("✅ CSV 寫入成功！")
+        print(f"CSV 寫入成功！Alpha ID: {alpha_id} ✅")
